@@ -1,0 +1,10 @@
+GET https://localhost:1337/
+
+###
+POST https://localhost:1337/login
+Content-Type: application/json
+
+{
+    "mail": "bodmer98@web.de",
+    "password": "13245"
+}
