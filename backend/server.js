@@ -1,11 +1,22 @@
-const https = require('https');
 const fs = require('fs');
+const https = require('https');
 const express = require('express');
+const cors = require('cors');
 const connectToDatabase = require('./db');
 const port = 1337;
 
+const options = {
+    key: fs.readFileSync('localhost-key.pem'),
+    cert: fs.readFileSync('localhost.pem')
+};
+
 const app = express()
 app.use(express.json());
+
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 
 app.get('/', (req, res) => {
     res.sendStatus(200);
@@ -21,8 +32,11 @@ app.post('/registrate', async (req, res) => {
 
         const db = await connectToDatabase();
         const collection = db.collection("users");
+
         //TODO: database query / comparison / insert
-        const cursor = collection.find();
+        await collection.insertOne({ email: `${mail}`, password: `${password}` }, () => {
+
+        });
 
 
         res.status(200).send({
@@ -30,7 +44,7 @@ app.post('/registrate', async (req, res) => {
         });
 
     } catch (error) {
-        if (err.code === 11000) { // Mongo Duplicate Key Error
+        if (error.code === 11000) { // Mongo Duplicate Key Error
             res.status(409).json({ error: "Benutzer existiert bereits" });
         } else {
             console.error("Fehler beim Insert:", err);
@@ -50,15 +64,41 @@ app.post('/login', async (req, res) => {
         const db = await connectToDatabase();
         const collection = db.collection("users");
 
-        //TODO: database query / comparison
-        const cursor = collection.find();
-        const results = await cursor.toArray();
+        const user = await collection.findOne({ email: `${mail}` });
 
-        console.log(results);
-
+        if (!user.email) throw ("User not found!")
+        if (user.password != password) throw ("Password incorrect!")
 
         res.status(200).send({
             message: `${mail} was successfully logged in!`
+        });
+
+    } catch (error) {
+        res.status(500).send({
+            error: `${error}`
+        });
+    }
+})
+
+app.post('/stories', async (req, res) => {
+    try {
+        const { mail } = req.body;
+
+        if (!mail) {
+            throw ("incorrect body");
+        }
+
+        const db = await connectToDatabase();
+        const collection = db.collection("users");
+
+        const user = await collection.findOne({ email: `${mail}` });
+
+        if (!user.email) throw ("User not found!")
+
+        console.log(user.stories)
+
+        res.status(200).send({
+            stories: user.stories
         });
 
     } catch (error) {
@@ -88,12 +128,6 @@ app.post('/haski', (req, res) => {
         });
     }
 })
-
-
-const options = {
-    key: fs.readFileSync('localhost-key.pem'),
-    cert: fs.readFileSync('localhost.pem')
-};
 
 https.createServer(options, app).listen(port, () => {
     console.log(`HTTPS Server has started on port: ${port}!`);

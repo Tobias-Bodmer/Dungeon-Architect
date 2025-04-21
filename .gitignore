@@ -1,10 +1,10 @@
-/dungeon_architect//node_modules
-/dungeon_architect//.pnp
+/dungeon_architect/node_modules
+/dungeon_architect/.pnp
 /dungeon_architect/.pnp.js
 
-/dungeon_architect//coverage
+/dungeon_architect/coverage
 
-/dungeon_architect//build
+/dungeon_architect/build
 
 /dungeon_architect/.DS_Store
 /dungeon_architect/.env.local
