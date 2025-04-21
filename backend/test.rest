@@ -6,5 +6,32 @@ Content-Type: application/json
 
 {
     "mail": "bodmer98@web.de",
-    "password": "13245"
+    "password": "123"
+}
+
+###
+POST https://localhost:1337/login
+Content-Type: application/json
+
+{
+    "mail": "bodmer98@web.de",
+    "password": "12345"
+}
+
+###
+POST https://localhost:1337/registrate
+Content-Type: application/json
+
+{
+    "mail": "bodmer98@web.de",
+    "password": "12345"
+}
+
+###
+
+POST https://localhost:1337/stories
+Content-Type: application/json
+
+{
+    "mail": "bodmer98@web.de"
 }
