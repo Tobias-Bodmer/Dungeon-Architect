@@ -24,16 +24,25 @@ const StoryOverview = () => {
             });
     }, []);
 
-    if (loading) return "";
+    const handleClick = async (e) => {
+        if (e.currentTarget.id == "new") {
+            return;
+        }
+        localStorage.setItem("story", e.currentTarget.id)
+    };
 
     return (
         <div id="stories">
             {stories.map((story, index) => (
-                <div key={index}>
-                    <h3>Story {index}</h3>
+                <div id={index} key={index} onClick={handleClick}>
+                    <h3>Story {index + 1}</h3>
                     <p>{story.description}</p>
                 </div>
             ))}
+            <div id="new" onClick={handleClick}>
+                <h3>Story erstellen?</h3>
+                <p>Hier kannst du ein neuns Adventure beginnen!</p>
+            </div>
         </div>
     );
 };

@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios';
 
 const StoryEditor = () => {
+    const [answer, setAnswer] = useState([]);
     const [content, setContent] = useState("");
     const [error, setError] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!content) {
@@ -14,18 +16,62 @@ const StoryEditor = () => {
             return;
         }
 
-        //backend zu haski und zurück.
+        setError("");
 
-        setContent("");
+        try {
+            const body = { advKey: "123", message: content };
+
+            const response = await axios.post('https://localhost:1337/haski', body, {
+                withCredentials: true
+            })
+
+            if (response.status === 200) {
+                console.log(response.data.answer);
+                setAnswer(prev => [...prev, response.data.answer]);
+            } else {
+                setError("Unerwartete Antwort vom Server.");
+            }
+        } catch (err) {
+            console.error("Fehler bei der Anfrage:", err);
+            setError("Verbindung zum Server fehlgeschlagen.");
+        }
     };
 
     return (
         <>
             <div id="ki-content">
-                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-                Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
-                Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.
-                Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Lorem ipsum dolor sit amet
+                {answer.length === 0 && (
+                    <>
+                        Um eine Geschichte zu erstellen, gib mir folgende Hinweise zu deiner Geschichte:<br />
+                        <p>
+                            - Setting: Welt oder Region (z.B. Mittelerde, Westeros, Verne)<br />
+                            - Hauptquest: Ziel oder Aufgabe des Helden<br />
+                            - Nebenplots oder Seitenquests: Nebenschlüssel zum Hauptquest, unabhängige Erzählungen oder Ereignisse<br />
+                            - Charaktere: NPC (Nicht-Spieler-Charaktere) und Monster mit Beschreibung und Motivation<br />
+                            - Schlüsselpunkte der Geschichte: Ereignisse, die wichtig für die Entwicklung der Handlung sind<br />
+                            - Regeln und Settings: Regeln für Kampf, Magie, Umwelt etc., die bei deiner Geschichte gelten<br />
+                        </p>
+                        Weitere Details:<br />
+                        <p>
+                            - Länge der Abenteuer: Mehrere Sitzungen oder One-Shot (Einzelspiel)<br />
+                            - Schwierigkeitsgrad: Leicht, Mittelschwer, Schwer oder Benutzerdefiniert<br />
+                            - Stimmung: Leichtmütige, dunkle, mystische usw.<br />
+                            - Charakterlevels: Startniveau und möglicher Fortschritt<br />
+                        </p>
+                    </>
+                )}
+                <div className="answers">
+                    {answer.map((a, index) => (
+                        <p key={index}>
+                            {a.split('\n').map((line, i) => (
+                                <>
+                                    {line}
+                                    {i < a.split('\n').length - 1 && <br />}
+                                </>
+                            ))}
+                        </p>
+                    ))}
+                </div>
             </div>
             <form onSubmit={handleSubmit} className="haski-form">
                 {error && <p className="error-message">{error}</p>}
