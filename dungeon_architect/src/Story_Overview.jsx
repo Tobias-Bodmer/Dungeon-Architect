@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
 
-const StoryOverview = () => {
+const StoryOverview = ({ onToggle }) => {
     const [stories, setStories] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -25,10 +25,12 @@ const StoryOverview = () => {
     }, []);
 
     const handleClick = async (e) => {
+        localStorage.setItem("story", e.currentTarget.id);
         if (e.currentTarget.id == "new") {
-            return;
+            //TODO: Neue story anlegen und dann ki chat beginnen
         }
-        localStorage.setItem("story", e.currentTarget.id)
+        onToggle();
+        //TODO: Story aus datenbank abgreifen und in die ki requests einbinden
     };
 
     return (
