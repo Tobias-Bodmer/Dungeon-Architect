@@ -27,6 +27,7 @@ const LoginForm = () => {
         if (response.status == 200) {
           localStorage.setItem("loggedInUser", `${loginEmail}`)
           localStorage.setItem("isLoggedIn", true)
+          localStorage.setItem("story", '')
           window.location.reload();
         }
       }).catch(error => {

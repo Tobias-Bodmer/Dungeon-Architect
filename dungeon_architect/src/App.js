@@ -9,9 +9,12 @@ import './App.css';
 export default function LandingPage() {
   const [show, toggleShow] = useState(false);
 
-  function toggle() {
-    toggleShow((show) => !show);
-    console.log(localStorage.getItem("isLoggedIn") === 'true');
+  async function toggle() {
+    if (localStorage.getItem("isLoggedIn") == 'true' && localStorage.getItem("story") == "") {
+      return;
+    }
+
+    toggleShow(preShow => !preShow);
   }
 
   return (
@@ -29,9 +32,8 @@ export default function LandingPage() {
         </h1>
       </div>
       <div>
-        {(localStorage.getItem("isLoggedIn") == 'true') && !show ? <StoryEditor /> : ""}
-        {(localStorage.getItem("isLoggedIn") == 'true') && show ? <StoryOverview /> : ""}
-
+        {(localStorage.getItem("isLoggedIn") == 'true') && !show ? <StoryOverview onToggle={toggle} /> : ""}
+        {(localStorage.getItem("isLoggedIn") == 'true') && show ? <StoryEditor /> : ""}
       </div>
     </>
   );

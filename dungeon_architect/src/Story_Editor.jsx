@@ -40,7 +40,7 @@ const StoryEditor = () => {
     return (
         <>
             <div id="ki-content">
-                {answer.length === 0 && (
+                {localStorage.getItem("story") == "new" && (
                     <>
                         Um eine Geschichte zu erstellen, gib mir folgende Hinweise zu deiner Geschichte:<br />
                         <p>
