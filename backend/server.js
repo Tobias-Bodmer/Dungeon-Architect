@@ -3,6 +3,7 @@ const https = require('https');
 const express = require('express');
 const cors = require('cors');
 const connectToDatabase = require('./db');
+const callHaski = require('./haski');
 const port = 1337;
 
 const options = {
@@ -44,7 +45,7 @@ app.post('/registrate', async (req, res) => {
         });
 
     } catch (error) {
-        if (error.code === 11000) { // Mongo Duplicate Key Error
+        if (error.code === 11000) {
             res.status(409).json({ error: "Benutzer existiert bereits" });
         } else {
             console.error("Fehler beim Insert:", err);
@@ -108,18 +109,22 @@ app.post('/stories', async (req, res) => {
     }
 })
 
-app.post('/haski', (req, res) => {
-    try {
-        const { content, story } = req.body;
 
-        if (!content || !story) {
+app.post('/haski', async (req, res) => {
+    try {
+        const { advKey, message } = req.body;
+
+        if (!advKey || !message) {
             throw ("incorrect body");
         }
 
         //TODO: database query / haski api request
+        const result = await callHaski(advKey, message)
+
+        console.log(result);
 
         res.status(200).send({
-            message: `haski ausgabe!`
+            answer: result
         });
 
     } catch (error) {

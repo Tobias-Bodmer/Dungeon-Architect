@@ -1,12 +1,12 @@
 GET https://localhost:1337/
 
 ###
-POST https://localhost:1337/login
+POST https://localhost:1337/haski
 Content-Type: application/json
 
 {
-    "mail": "bodmer98@web.de",
-    "password": "123"
+    "advKey": "123",
+    "message": "Erstelle ein DnD-Abenteuer in einer mystischen Vulkaninsel (Setting), bei dem die Helden ein uraltes Siegel finden müssen, um einen Drachen zu bannen (Hauptquest). Nebenquests beinhalten lokale Stammeskonflikte und einen verschollenen Zauberer (Seitenquests). Es gibt 3 wichtige NPCs, u. a. ein verräterischer Dorfältester. Gespielt wird mit D&D 5e Regeln. Das Abenteuer ist für Level 3–7, mittlerer Schwierigkeitsgrad und eher düster."
 }
 
 ###
