@@ -3,7 +3,7 @@ import LoginForm from "./Login";
 import StoryEditor from "./Story_Editor";
 import StoryOverview from "./Story_Overview";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faUser } from '@fortawesome/free-solid-svg-icons'
+import { faPowerOff, faUser } from '@fortawesome/free-solid-svg-icons'
 import './App.css';
 
 export default function LandingPage() {
@@ -17,12 +17,26 @@ export default function LandingPage() {
     toggleShow(preShow => !preShow);
   }
 
+  async function logOut() {
+    if (localStorage.getItem("isLoggedIn") == 'false') {
+      return;
+    }
+    localStorage.setItem("loggedInUser", "")
+    localStorage.setItem("isLoggedIn", false)
+    window.location.reload();
+  }
+
   return (
     <>
       <div id='nav'>
         <button onClick={toggle}>
           <FontAwesomeIcon icon={faUser} />
         </button>
+        {(localStorage.getItem("isLoggedIn") == 'true') ?
+          <button onClick={logOut}>
+            <FontAwesomeIcon icon={faPowerOff} />
+          </button>
+          : ""}
       </div>
       {!(localStorage.getItem("isLoggedIn") == 'true') && show ? <LoginForm /> : ""}
       <div>
