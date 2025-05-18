@@ -26,13 +26,9 @@ const StoryOverview = ({ onToggle }) => {
 
     const handleClick = async (e) => {
         localStorage.setItem("story", e.currentTarget.id);
-        if (e.currentTarget.id == "new") {
-            //TODO: Neue story anlegen und dann ki chat beginnen
-        }
         onToggle();
-        //TODO: Story aus datenbank abgreifen und in die ki requests einbinden
     };
-
+        //TODO: headline information verwenden!
     return (
         <div id="stories">
             {stories.map((story, index) => (

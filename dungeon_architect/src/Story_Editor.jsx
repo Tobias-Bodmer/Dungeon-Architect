@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios';
@@ -8,6 +8,30 @@ const StoryEditor = () => {
     const [content, setContent] = useState("");
     const [error, setError] = useState("");
 
+    useEffect(() => {
+        if (localStorage.getItem("story") == "new") {
+            return;
+        }
+
+        const body = { mail: localStorage.getItem("loggedInUser") };
+
+        axios.post('https://localhost:1337/stories', body, {
+            withCredentials: true
+        }).then(response => {
+            if (response.status === 200) { } {
+                const conversation = response.data.stories[localStorage.getItem("story")].conversationHistory;
+                setAnswer(conversation);
+            }
+        })
+
+    }, []);
+
+    const handleEnter = async (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            handleSubmit(e);
+        }
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -16,18 +40,27 @@ const StoryEditor = () => {
             return;
         }
 
-        setError("");
-
         try {
-            const body = { advKey: "123", message: content };
+            setAnswer(prev => [...prev, { role: "user", content: content }]);
+
+            const body = { advKey: localStorage.getItem("story"), message: content, mail: localStorage.getItem("loggedInUser") };
+
+            setContent("");
+
+            //TODO: loading sequence
 
             const response = await axios.post('https://localhost:1337/haski', body, {
                 withCredentials: true
             })
 
             if (response.status === 200) {
-                console.log(response.data.answer);
-                setAnswer(prev => [...prev, response.data.answer]);
+                if (localStorage.getItem("story") == "new") {
+                    localStorage.setItem("story", (response.data.advKey - 1))
+                }
+
+                const aiLine = { role: 'assistant', content: `${response.data.answer}` };
+
+                setAnswer(prev => [...prev, aiLine]);
             } else {
                 setError("Unerwartete Antwort vom Server.");
             }
@@ -38,7 +71,7 @@ const StoryEditor = () => {
     };
 
     return (
-        <>
+        <div class="story-editor">
             <div id="ki-content">
                 {localStorage.getItem("story") == "new" && (
                     <>
@@ -62,14 +95,16 @@ const StoryEditor = () => {
                 )}
                 <div className="answers">
                     {answer.map((a, index) => (
-                        <p key={index}>
-                            {a.split('\n').map((line, i) => (
-                                <>
-                                    {line}
-                                    {i < a.split('\n').length - 1 && <br />}
-                                </>
-                            ))}
-                        </p>
+                        <div class={answer[index].role}>
+                            <p key={index} class={answer[index].role}>
+                                {answer[index].content.split('\n').map((line, i) => (
+                                    <>
+                                        {line}
+                                        {i < answer[index].content.split('\n').length - 1 && <br />}
+                                    </>
+                                ))}
+                            </p>
+                        </div>
                     ))}
                 </div>
             </div>
@@ -84,6 +119,7 @@ const StoryEditor = () => {
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="Frag Haski"
                         required
+                        onKeyDown={handleEnter}
                     />
                 </div>
 
@@ -91,7 +127,7 @@ const StoryEditor = () => {
                     <FontAwesomeIcon icon={faArrowRight} />
                 </button>
             </form>
-        </>
+        </div>
     );
 };
 
