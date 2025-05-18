@@ -34,12 +34,19 @@ var url = "https://api.openai.com/v1/chat/completions";
 
 async function callHaski(adventureKey, message) {
     try {
+        var systemInstruction = 'Antworte immer auf deutsch. Du bist ein Assistent für D&D-Spielleitung und hilft eine komplette Geschichte zu formulieren.';
+        
+        if (adventureKey == "new") {
+            systemInstruction = 'Antworte immer auf deutsch. Du bist ein Assistent für D&D-Spielleitung und hilft eine komplette Geschichte zu formulieren. Deine ausagbe soll in json sein und so aussehen result:{headline: "", description: "", message: ""}. Die description darf maximal 30 Wörter umfassen.';
+        }
+
+        //TODO: alter content mitsenden
         const response = await axios.post(
             'http://localhost:11434/api/chat',
             {
                 model: 'mistral', 
                 messages: [
-                    { role: 'system', content: 'Antworte immer auf deutsch. Du bist ein Assistent für D&D-Spielleitung.' },
+                    { role: 'system', content: `${systemInstruction}` },
                     { role: 'user', content: message }
                 ],
                 stream: false

@@ -34,11 +34,8 @@ app.post('/registrate', async (req, res) => {
         const db = await connectToDatabase();
         const collection = db.collection("users");
 
-        //TODO: database query / comparison / insert
-        await collection.insertOne({ email: `${mail}`, password: `${password}` }, () => {
-
+        await collection.insertOne({ email: `${mail}`, password: `${password}`, stories: [] }, () => {
         });
-
 
         res.status(200).send({
             message: `${mail} is now registrated!`
@@ -96,8 +93,6 @@ app.post('/stories', async (req, res) => {
 
         if (!user.email) throw ("User not found!")
 
-        console.log(user.stories)
-
         res.status(200).send({
             stories: user.stories
         });
@@ -112,19 +107,49 @@ app.post('/stories', async (req, res) => {
 
 app.post('/haski', async (req, res) => {
     try {
-        const { advKey, message } = req.body;
+        const { advKey, message, mail } = req.body;
 
-        if (!advKey || !message) {
+        if (!advKey || !message || !mail) {
             throw ("incorrect body");
         }
 
-        //TODO: database query / haski api request
-        const result = await callHaski(advKey, message)
+        const db = await connectToDatabase();
+        const collection = db.collection("users");
 
+        var result = await callHaski(advKey, message);
+        
         console.log(result);
 
+        if (advKey == "new") {
+            result = JSON.parse(result);
+            collection.updateOne({ email: `${mail}` }, {
+                $push: {
+                    stories: {
+                        headline: `${result.headline}`, description: `${result.description}`, conversationHistory: [
+                            { role: 'user', content: `${message}` },
+                            { role: 'assistant', content: `${result.message}` }
+                        ]
+                    }
+                }
+            });
+        } else {
+            collection.updateOne({ email: `${mail}` }, {
+                $push: {
+                    [`stories.${advKey}.conversationHistory`]: {
+                        $each: [
+                            { role: 'user', content: `${message}` },
+                            { role: 'assistant', content: `${result}` }
+                        ]
+                    }
+                }
+            })
+        }
+
+        const user = await collection.findOne({ email: `${mail}` });
+
         res.status(200).send({
-            answer: result
+            answer: result,
+            advKey: user.stories.length
         });
 
     } catch (error) {

@@ -22,6 +22,7 @@ function closeMongoConnection() {
 }
 
 
+
 process.on('SIGINT', closeMongoConnection);
 process.on('SIGTERM', closeMongoConnection);
 

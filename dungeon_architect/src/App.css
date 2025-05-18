@@ -19,20 +19,18 @@ a:visited {
   right: 1.5rem;
 }
 
-#nav>button {
-  border: 3px solid #69653b !important;
-  border-radius: 1rem !important;
-  margin-left: 1rem;
-}
-
 #nav>button,
 .haski-form>.haski-button {
+  margin-left: 1rem;
+  border-radius: 1rem !important;
+  border: 3px solid #69653b !important;
   cursor: pointer;
   font-size: 2.5rem;
   background: none;
   border: none;
   padding: 5px 10px;
   color: #343a39 !important;
+  background: #eeddc5;
 }
 
 .headline {
@@ -116,13 +114,17 @@ a:visited {
   margin-bottom: 10px;
 }
 
+.story-editor {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
 .haski-form {
   display: flex;
-  position: absolute;
   align-items: center;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 25vh;
+  width: fit-content;
+  margin: 1rem;
 }
 
 .haski-form textarea {
@@ -130,6 +132,7 @@ a:visited {
   background: none;
   resize: none;
   border: 3px solid #69653b;
+  background: #eeddc5;
   border-radius: 1rem;
   font-size: 1rem;
   padding: 0.5rem;
@@ -151,9 +154,23 @@ a:visited {
   font-weight: 600;
 }
 
-.answers>p {
-  border: 1px solid black;
+.answers {
+  width: 100%;
+}
+
+.answers>div.user {
+  display: flex;
+  justify-content: end;
+  text-align: end;
+}
+
+.answers p {
   padding: 1rem;
+}
+
+.answers p.user {
+  border: 3px solid #69653b;
+  border-radius: 1rem
 }
 
 #stories {
