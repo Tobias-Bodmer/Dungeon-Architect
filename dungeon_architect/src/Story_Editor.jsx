@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import axios from 'axios';
@@ -7,24 +7,44 @@ const StoryEditor = () => {
     const [answer, setAnswer] = useState([]);
     const [content, setContent] = useState("");
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (localStorage.getItem("story") == "new") {
+        if (localStorage.getItem("story") === "new") {
             return;
         }
 
-        const body = { mail: localStorage.getItem("loggedInUser") };
 
-        axios.post('https://localhost:1337/stories', body, {
+        axios.post('https://localhost:1337/stories', "", {
             withCredentials: true
         }).then(response => {
-            if (response.status === 200) { } {
+            if (response.status === 200) {
                 const conversation = response.data.stories[localStorage.getItem("story")].conversationHistory;
                 setAnswer(conversation);
+            } else if (response.status === 401) {
+                localStorage.setItem("isLoggedIn", false)
+                localStorage.setItem("story", '')
+                window.location.reload();
             }
         })
 
     }, []);
+
+    const kiContentRef = useRef(null);
+
+    useEffect(() => {
+        if (!kiContentRef.current) return;
+
+        const container = kiContentRef.current;
+        const lastMessage = container.querySelector(".answers > div:last-child");
+
+        if (lastMessage) {
+            lastMessage.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+            container.scrollTop = container.scrollHeight;
+        }
+    }, [answer, isLoading]);
+
 
     const handleEnter = async (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -43,18 +63,18 @@ const StoryEditor = () => {
         try {
             setAnswer(prev => [...prev, { role: "user", content: content }]);
 
-            const body = { advKey: localStorage.getItem("story"), message: content, mail: localStorage.getItem("loggedInUser") };
+            const body = { advKey: localStorage.getItem("story"), message: content };
 
             setContent("");
 
-            //TODO: loading sequence
+            setIsLoading(true);
 
             const response = await axios.post('https://localhost:1337/haski', body, {
                 withCredentials: true
             })
 
             if (response.status === 200) {
-                if (localStorage.getItem("story") == "new") {
+                if (localStorage.getItem("story") === "new") {
                     localStorage.setItem("story", (response.data.advKey - 1))
                 }
 
@@ -65,15 +85,22 @@ const StoryEditor = () => {
                 setError("Unerwartete Antwort vom Server.");
             }
         } catch (err) {
+            if (err.status === 401) {
+                localStorage.setItem("isLoggedIn", false)
+                localStorage.setItem("story", '')
+                window.location.reload();
+            }
             console.error("Fehler bei der Anfrage:", err);
             setError("Verbindung zum Server fehlgeschlagen.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div class="story-editor">
-            <div id="ki-content">
-                {localStorage.getItem("story") == "new" && (
+            <div id="ki-content" ref={kiContentRef}>
+                {localStorage.getItem("story") === "new" && (
                     <>
                         Um eine Geschichte zu erstellen, gib mir folgende Hinweise zu deiner Geschichte:<br />
                         <p>
@@ -107,6 +134,13 @@ const StoryEditor = () => {
                         </div>
                     ))}
                 </div>
+                {isLoading && (
+                    <div className="loading-indicator">
+                        <span className="dot">.</span>
+                        <span className="dot">.</span>
+                        <span className="dot">.</span>
+                    </div>
+                )}
             </div>
             <form onSubmit={handleSubmit} className="haski-form">
                 {error && <p className="error-message">{error}</p>}

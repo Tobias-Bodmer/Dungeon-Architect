@@ -161,7 +161,6 @@ a:visited {
 .answers>div.user {
   display: flex;
   justify-content: end;
-  text-align: end;
 }
 
 .answers p {
@@ -170,7 +169,8 @@ a:visited {
 
 .answers p.user {
   border: 3px solid #69653b;
-  border-radius: 1rem
+  border-radius: 1rem;
+  max-width: 60%;
 }
 
 #stories {
@@ -190,4 +190,40 @@ a:visited {
   border-radius: 1rem;
   padding: 1rem;
   margin-bottom: 1rem;
+}
+
+.loading-indicator {
+  font-size: 1.5rem;
+  font-weight: bold;
+  padding: 8px;
+  user-select: none;
+}
+
+.dot {
+  animation-name: blink;
+  animation-duration: 1.4s;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
+}
+
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 20% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.2;
+  }
 }

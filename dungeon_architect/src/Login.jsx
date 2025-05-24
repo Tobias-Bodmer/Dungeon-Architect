@@ -24,15 +24,14 @@ const LoginForm = () => {
       withCredentials: true
     })
       .then((response) => {
-        if (response.status == 200) {
-          localStorage.setItem("loggedInUser", `${loginEmail}`)
+        if (response.status === 200) {
           localStorage.setItem("isLoggedIn", true)
           localStorage.setItem("story", '')
           window.location.reload();
         }
       }).catch(error => {
         if (error.response) {
-          setLoginError(error.response.data.error);
+          setLoginError("E-Mail oder Passwort inkorrekt.");
         }
       });;
   };
@@ -40,8 +39,20 @@ const LoginForm = () => {
   const handleRegSubmit = (e) => {
     e.preventDefault();
 
-    if (!regEmail || !regPassword || !repPassword && regPassword == repPassword) {
+    const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+    if (!regEmail || !regPassword || !repPassword) {
       setRegError("Bitte fülle alle Felder aus!");
+      return;
+    }
+
+    if (regPassword !== repPassword) {
+      setRegError("Passworteingabe stimmt nicht überein!");
+      return;
+    }
+
+    if (!passwordPattern.test(regPassword)) {
+      setRegError("Das Passwort muss mindestens 8 Zeichen lang sein und mindestens einen Großbuchstaben, einen Kleinbuchstaben und eine Zahl enthalten.");
       return;
     }
 
@@ -51,9 +62,9 @@ const LoginForm = () => {
       withCredentials: true
     })
       .then((response) => {
-        if (response.status == 200) {
-          localStorage.setItem("loggedInUser", `${regEmail}`)
+        if (response.status === 200) {
           localStorage.setItem("isLoggedIn", true)
+          localStorage.setItem("story", '')
           window.location.reload();
         }
       }).catch(error => {
@@ -88,8 +99,7 @@ const LoginForm = () => {
             value={loginPassword}
             onChange={(e) => setLoginPassword(e.target.value)}
             placeholder="Gib dein Passwort ein"
-            required
-          />
+            required />
         </div>
 
         <button type="submit" className="login-button">
@@ -119,8 +129,9 @@ const LoginForm = () => {
             value={regPassword}
             onChange={(e) => setRegPassword(e.target.value)}
             placeholder="Gib dein Passwort ein"
-            required
-          />
+            pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+            title="Das Passwort muss mindestens eine Zahl, einen großen Buchstaben, einen kleinen Buchstaben und mindestens acht Zeichen lang sein."
+            required />
         </div>
 
         <div className="input-group">
@@ -131,8 +142,7 @@ const LoginForm = () => {
             value={repPassword}
             onChange={(e) => setRepPassword(e.target.value)}
             placeholder="Wiederhole dein Passwort"
-            required
-          />
+            required />
         </div>
 
         <button type="submit" className="registration-button">
