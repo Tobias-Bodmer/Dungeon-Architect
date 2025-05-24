@@ -3,12 +3,10 @@ import axios from 'axios';
 
 const StoryOverview = ({ onToggle }) => {
     const [stories, setStories] = useState([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const body = { mail: localStorage.getItem("loggedInUser") };
 
-        axios.post('https://localhost:1337/stories', body, {
+        axios.post('https://localhost:1337/stories', "", {
             withCredentials: true
         })
             .then(response => {
@@ -17,10 +15,12 @@ const StoryOverview = ({ onToggle }) => {
                 }
             })
             .catch(error => {
+                if (error.status === 401) {
+                    localStorage.setItem("isLoggedIn", false);
+                    localStorage.setItem("story", '');
+                    window.location.reload();
+                }
                 console.error("Fehler beim Laden der Stories:", error);
-            })
-            .finally(() => {
-                setLoading(false);
             });
     }, []);
 
@@ -28,12 +28,12 @@ const StoryOverview = ({ onToggle }) => {
         localStorage.setItem("story", e.currentTarget.id);
         onToggle();
     };
-        //TODO: headline information verwenden!
+    //TODO: headline information verwenden!
     return (
         <div id="stories">
             {stories.map((story, index) => (
                 <div id={index} key={index} onClick={handleClick}>
-                    <h3>Story {index + 1}</h3>
+                    <h3>Story {index + 1} - {story.headline}</h3>
                     <p>{story.description}</p>
                 </div>
             ))}
