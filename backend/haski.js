@@ -1,5 +1,6 @@
 const axios = require('axios');
-const apiKey = 'REMOVED_KEY';
+const fs = require('fs');
+var apiKey = "";
 var url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
 // async function callHaski(adventureKey, message) {
@@ -71,6 +72,8 @@ var url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-fl
 
 async function callGemini(adventureKey, message, conversationHistory) {
     try {
+        loadAIKey();
+
         const systemInstruction = `Antworte immer auf Deutsch. Du unterstützt den Benutzer beim Schreiben eines spannenden Dungeons & Dragons-Abenteuers. Deine Aufgabe ist es, gemeinsam mit ihm eine gut strukturierte, kreative und spielfertige Geschichte zu entwickeln, die später mit einer Spielergruppe verwendet werden kann.
 
                 Du entwickelst eigenständig Orte, Charaktere, Konflikte und Ereignisse und beschreibst sie lebendig, aber präzise. Du sprichst **nicht den Spieler an**, sondern hilfst beim Entwurf der Geschichte. Die Handlung entsteht abschnittsweise und soll sich später für ein interaktives Spiel eignen. Wiederhole dich nicht, verwende eine bildhafte Sprache und denke vorausschauend, damit sich die Handlung logisch entfaltet.
@@ -107,6 +110,16 @@ async function callGemini(adventureKey, message, conversationHistory) {
         console.error('Fehler beim Aufruf der Gemini-API:', error.response?.data || error.message);
         return error.response?.data || error.message;
     }
+}
+
+async function loadAIKey() {
+    if (apiKey !== "") {
+        return;
+    }
+
+    const raw = fs.readFileSync('AI_KEY.json', 'utf8');
+    const data = JSON.parse(raw);
+    apiKey = data.apiKey;
 }
 
 //Komprimiere die folgende Konversation zu einem sehr kompakten, maschinenlesbaren Gedächtnis-Snippet. Nutze Listen, Kürzel, Schlüsselbegriffe. Keine unnötigen Details. Maximal 300 Tokens.
