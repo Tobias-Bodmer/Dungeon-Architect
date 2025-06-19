@@ -63,6 +63,13 @@ app.post('/registrate', async (req, res) => {
             stories: []
         });
 
+        const user = await collection.findOne({ email: mail });
+
+        req.session.user = {
+            id: user._id,
+            email: user.email
+        };
+
         res.status(200).send({
             message: `${mail} is now registered!`,
             user: req.session.user
